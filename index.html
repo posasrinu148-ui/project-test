@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Health Card | Emergency Health Management</title>
+    <meta name="description" content="AI-powered Emergency Health Management Interface">
+    <link rel="stylesheet" href="app.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background-animation">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <header class="top-nav">
+        <div class="logo" id="home-logo" style="cursor: pointer;" onclick="app.navigateTo('view-dashboard')">
+            <i class="fa-solid fa-heart-pulse"></i> Emergency Health Card
+        </div>
+        <div class="nav-controls">
+            <button class="btn-nav-settings" onclick="app.navigateTo('view-api-settings')" title="AI API Settings">
+            </button>
+            <button class="btn-nav-settings" onclick="app.navigateTo('view-database-settings')" title="Database Settings">
+            </button>
+            <div class="time-display" id="time-display">00:00:00</div>
+        </div>
+    </header>
+
+    <main class="app-container">
+        
+        <!-- DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view active">
+            <div class="dashboard-header">
+                <h1>Emergency Management Hub</h1>
+                <p>Select a module to proceed</p>
+            </div>
+            
+            <div class="module-cards">
+                <!-- Option 1 -->
+                <div class="card" onclick="app.navigateTo('view-health-card')">
+                    <div class="card-icon cyan"><i class="fa-solid fa-address-card"></i></div>
+                    <h2>Health Card Generation</h2>
+                    <p>Register new patient details and generate a vital statistics ID card instantly.</p>
+                </div>
+                
+                <!-- Option 2 -->
+                <div class="card" onclick="app.navigateTo('view-ai-admission')">
+                    <div class="card-icon red pulse"><i class="fa-solid fa-truck-medical"></i></div>
+                    <h2>Emergency AI Admission</h2>
+                    <p>Voice-assisted chatbot to collect symptoms, summarize condition, and recommend hospitals.</p>
+                </div>
+                
+                <!-- Option 3 -->
+                <div class="card" onclick="app.navigateTo('view-auto-fill')">
+                    <div class="card-icon emerald"><i class="fa-solid fa-bolt"></i></div>
+                    <h2>Auto Form Fill</h2>
+                    <p>Rapid patient intake using automated ID scanning for critical emergency situations.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- HEALTH CARD VIEW -->
+        <section id="view-health-card" class="view hidden">
+            <button class="btn-back" onclick="app.navigateTo('view-dashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Hub</button>
+            
+            <div class="split-layout">
+                <div class="form-container glass-panel">
+                    <h2>Patient Registration</h2>
+                    <form id="health-card-form" onsubmit="app.generateHealthCard(event)">
+                        <div class="form-group">
+                            <label for="hc-name">Full Name</label>
+                            <input type="text" id="hc-name" required placeholder="John Doe">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hc-dob">Date of Birth</label>
+                                <input type="date" id="hc-dob" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="hc-blood">Blood Group</label>
+                                <select id="hc-blood" required>
+                                    <option value="">Select...</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="hc-allergies">Any Diseases</label>
+                            <input type="text" id="hc-allergies" placeholder="e.g., Heart Attack, asathma, diabetes">
+                        </div>
+                        <div class="form-group">
+                            <label for="hc-contact">Emergency Contact</label>
+                            <input type="tel" id="hc-contact" required placeholder="+91 0000000000">
+                        </div>
+                        <div class="form-group">
+                            <label for="hc-patient-contact">Patient Contact Number</label>
+                            <input type="tel" id="hc-patient-contact" required placeholder="+91 0000000000">
+                        </div>
+                        <div class="form-group">
+                            <label for="hc-address">Patient Address <span style="color: red;">*</span></label>
+                            <textarea id="hc-address" required minlength="10" placeholder="Enter complete address" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="hc-photo">Patient Photo <span style="color: red;">*</span></label>
+                            <input type="file" id="hc-photo" required accept="image/*" class="file-input">
+                        </div>
+                        <button type="submit" class="btn-primary w-100">Generate Card</button>
+                    </form>
+                </div>
+                
+                <div class="card-preview-container">
+                    <div class="generated-card" id="generated-card" style="display: none;">
+                        <div class="card-header">
+                            <div class="card-logo"><i class="fa-solid fa-heart-pulse"></i> VitalLink</div>
+                            <div class="card-title">HEALTH ID</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="patient-photo" id="display-photo-container">
+                                <i class="fa-solid fa-user" id="default-photo-icon"></i>
+                                <img id="display-photo" src="" alt="Patient Photo" style="display: none;">
+                            </div>
+                            <div class="patient-info">
+                                <h3 id="display-name">John Doe</h3>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="label">DOB</span>
+                                        <span class="value" id="display-dob">--/--/----</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">BLOOD</span>
+                                        <span class="value text-red" id="display-blood">--</span>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <span class="label">ALLERGIES</span>
+                                        <span class="value" id="display-allergies">None</span>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <span class="label">EMERGENCY</span>
+                                        <span class="value" id="display-contact">----------</span>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <span class="label">PATIENT CONTACT</span>
+                                        <span class="value" id="display-patient-contact">----------</span>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <span class="label">ADDRESS</span>
+                                        <span class="value" id="display-address">N/A</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="barcode">|||| |||||| |||||||| |||||| |||||</div>
+                        </div>
+                    </div>
+                    <div class="placeholder-text" id="card-placeholder">
+                        <i class="fa-regular fa-id-card"></i>
+                        <p>Fill out the form to generate health card</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EMERGENCY AI ADMISSION VIEW -->
+        <section id="view-ai-admission" class="view hidden">
+            <button class="btn-back" onclick="app.navigateTo('view-dashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Hub</button>
+            
+            <div class="split-layout">
+                <div class="chat-container glass-panel">
+                    <div class="chat-header">
+                        <div class="ai-avatar"><i class="fa-solid fa-robot"></i></div>
+                        <div>
+                            <h2>Triage Assistant</h2>
+                            <span class="status-indicator">Online</span>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message ai">
+                            <p>Emergency Triage Activated. Please describe the patient's symptoms via text or use voice input.</p>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <button class="btn-voice" id="btn-voice" onclick="app.toggleVoiceInput()"><i class="fa-solid fa-microphone"></i></button>
+                        <input type="text" id="chat-input" placeholder="Type symptoms here..." onkeypress="app.handleChatEnter(event)">
+                        <button class="btn-send" onclick="app.sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+                
+                <div class="analysis-container">
+                    <div class="glass-panel summary-panel" id="summary-panel" style="display: none;">
+                        <h3><i class="fa-solid fa-file-waveform"></i> AI Case Summary</h3>
+                        <div class="summary-content" id="ai-summary">
+                            <!-- Populated by JS -->
+                        </div>
+                        
+                        <h3 class="mt-4"><i class="fa-solid fa-hospital"></i> Recommended Facilities</h3>
+                        <div class="hospital-list" id="hospital-recommendations">
+                            <!-- Populated by JS -->
+                        </div>
+                        
+                        <button class="btn-danger w-100 mt-4" onclick="app.dispatchAmbulance()">Dispatch Ambulance Now</button>
+                    </div>
+                    
+                    <div class="placeholder-text" id="ai-placeholder">
+                        <i class="fa-solid fa-wave-square"></i>
+                        <p>Awaiting symptom input for analysis</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AUTO FORM FILL VIEW -->
+        <section id="view-auto-fill" class="view hidden">
+            <button class="btn-back" onclick="app.navigateTo('view-dashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Hub</button>
+            
+            <div class="auto-fill-header text-center">
+                <h2>Rapid Emergency Intake</h2>
+                <p>Use auto-scan for critical patients to save time</p>
+            </div>
+            
+            <div class="scan-action-area">
+                <button class="btn-scan pulse-animation" id="btn-scan" onclick="app.simulateScan()">
+                    <i class="fa-solid fa-expand"></i> Scan Patient ID / Face
+                </button>
+                <div class="scan-progress" id="scan-progress" style="display: none;">
+                    <div class="spinner"></div>
+                    <span>Scanning database...</span>
+                </div>
+            </div>
+            
+            <div class="glass-panel emergency-form mt-4">
+                <form id="auto-fill-form">
+                    <div class="form-row triple">
+                        <div class="form-group">
+                            <label>Patient ID (Auto-generated)</label>
+                            <input type="text" id="af-id" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" id="af-fname">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" id="af-lname">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row triple">
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input type="number" id="af-age">
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <input type="text" id="af-gender">
+                        </div>
+                        <div class="form-group">
+                            <label>Blood Type</label>
+                            <input type="text" id="af-blood" class="text-red font-bold">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Medical History Highlights</label>
+                        <textarea id="af-history" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-row mt-4">
+                        <button type="button" class="btn-primary" onclick="alert('Patient Admitted Successfully!')">Admit Patient</button>
+                        <button type="reset" class="btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- API KEY CONFIGURATION VIEW -->
+        <!-- DATABASE API CONFIGURATION VIEW -->
+    </main>
+
+    <!-- Debug Console -->
+    <div class="debug-console" id="debug-console">
+        <div class="debug-header">
+            <span>🔍 Debug Console</span>
+            <button onclick="app.toggleDebugConsole()" class="debug-close">✕</button>
+        </div>
+        <div class="debug-content" id="debug-content">
+            <p style="color: #10b981;">Console Ready...</p>
+        </div>
+        <button class="debug-toggle-btn" onclick="app.toggleDebugConsole()" title="Toggle Debug Console">
+            <i class="fa-solid fa-terminal"></i>
+        </button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
